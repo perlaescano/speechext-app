@@ -9,6 +9,7 @@ const rate = document.querySelector('#rate');
 const rateValue = document.querySelector('#rate-value');
 const pitch = document.querySelector('#pitch');
 const pitchValue = document.querySelector('#pitch-value');
+const body = document.querySelector('body');
 
 
 //Browser identifier
@@ -34,7 +35,7 @@ const  getVoices = () =>
         //Create an option element
         const option = document.createElement('option');
         //Fill the option with voice and Language
-        option.textContent = voice.name + '('+voice.lang+')';
+        option.textContent = voice.name + '('+ voice.lang +')';
 
         //set needed option attributes
         option.setAttribute('data-lang', voice.lang);
@@ -43,11 +44,14 @@ const  getVoices = () =>
     });
 };
 
+//Line 35, 36 causes voice list duplication
 getVoices();
 if (synth.onvoiceschanged !== undefined) 
 {
     synth.onvoiceschanged = getVoices;
 }
+
+
 
 //Speech 
 
@@ -61,35 +65,41 @@ const speak = () =>
     }
     if(textInput.value !== '') 
     {
-    //Get skeap text 
-    const speakText = new SpeechSynthesisUtterance(textInput.value);
-        // Speak end
-    speakText.onend = e => 
-    {
-        console.log('Done speaking...');
-    }
-    //Speak error 
-    speakText.onerror = e => 
-    {
-        console.error('Something went wrong');
-    }
-    //Selected voice 
-    const selectedVoice = voiceSelect.selectedOption[0].getAttribute('data-name');
-
-    //Loop through voices 
-    voices.forEach(voice =>
+        /*
+        // Add background animation
+        body.style.background = '#000000 url(img/wave.gif)';
+        body.style.backgroundRepeat = 'repeat-x';
+        body.style.backgroundSize = '100% 100%';
+        */
+        //Get speak text 
+        const speakText = new SpeechSynthesisUtterance(textInput.value);
+            // Speak end
+        speakText.onend = e => 
         {
-            if(voice.name == selectedVoice) 
-            {
-                speakText.voice = voice;
-            }
-        });
-    // Set pitch and rate 
-    speakText.rate = rate.value;
-    speakText.pitch = pitch.value;
+            console.log('Done speaking...');
+        }
+        //Speak error 
+        speakText.onerror = e => 
+        {
+            console.error('Something went wrong');
+        }
+        //Selected voice 
+        const selectedVoice = voiceSelect.selectedOptions[0].getAttribute('data-name');
 
-    //Speak 
-    synth.speak(speakText);
+        //Loop through voices 
+        voices.forEach(voice =>
+            {
+                if(voice.name == selectedVoice) 
+                {
+                    speakText.voice = voice;
+                }
+            });
+        // Set pitch and rate 
+        speakText.rate = rate.value;
+        speakText.pitch = pitch.value;
+
+        //Speak 
+        synth.speak(speakText);
 
     }
 };
